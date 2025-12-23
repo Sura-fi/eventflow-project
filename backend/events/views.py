@@ -58,19 +58,43 @@ class MyRegistrationsView(ListAPIView):
         def get_queryset(self):
          return Registration.objects.filter(user=self.request.user)
         
-class EventAttendeesView(APIView):
+# class EventAttendeesView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request, event_id):
+#         event = Event.objects.get(id=event_id)
+
+#         if event.created_by != request.user:
+#             raise PermissionDenied("Not allowed")
+
+#         registrations = Registration.objects.filter(event=event)
+#         serializer = AttendeeSerializer(registrations, many=True)
+#         return Response(serializer.data)
+        
+
+# Find your view that returns attendees
+class EventAttendeesView(generics.ListAPIView):
+    serializer_class = AttendeeSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, event_id):
-        event = Event.objects.get(id=event_id)
+    def get_queryset(self):
+        # CHANGE THIS LINE from 'pk' to 'event_id'
+        event_id = self.kwargs.get('event_id') 
+        
+        try:
+            event = Event.objects.get(id=event_id)
+            user = self.request.user
+            
+            # Normalize role check
+            user_role = getattr(user, 'role', '').upper()
 
-        if event.created_by != request.user:
-            raise PermissionDenied("Not allowed")
+            if event.created_by == user or user_role in ['ORGANIZER', 'MANAGER']:
+                return Registration.objects.filter(event=event)
+            
+            raise PermissionDenied("You don't have permission to view this list.")
+        except Event.DoesNotExist:
+            return Registration.objects.none()
 
-        registrations = Registration.objects.filter(event=event)
-        serializer = AttendeeSerializer(registrations, many=True)
-        return Response(serializer.data)
-    
 class CheckInView(APIView):
     permission_classes = [IsAuthenticated]
 

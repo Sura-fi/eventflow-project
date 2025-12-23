@@ -34,7 +34,16 @@ class RegistrationSerializer(serializers.ModelSerializer):
         model = Registration
         fields = ['id', 'event', 'event_title']
 
+# class AttendeeSerializer(serializers.ModelSerializer):
+#     username = serializers.CharField(source="user.username", read_only=True)
+
+#     class Meta:
+#         model = Registration
+#         fields = ['id', 'username', 'checked_in']
+
+
 class AttendeeSerializer(serializers.ModelSerializer):
+    # This pulls the username from the User model connected to the Registration
     username = serializers.CharField(source="user.username", read_only=True)
 
     class Meta:
