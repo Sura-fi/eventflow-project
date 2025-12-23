@@ -1,30 +1,30 @@
 from rest_framework import serializers
 from .models import Event , Registration
 
+
+# # 1. DEFINE THIS FIRST
 # class EventSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Event
-#         fields = '__all__'
-#         read_only_fields = ('created_by', 'created_at')
+#         fields = ['id', 'title', 'description', 'date', 'location', 'capacity']
 
-# class RegistrationSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Registration
-#         fields = ['id', 'event']
+#     def get_attendee_count(self, obj):
+#         return obj.registration_set.count()
 
-
-
-from rest_framework import serializers
-from .models import Event, Registration
 
 # 1. DEFINE THIS FIRST
 class EventSerializer(serializers.ModelSerializer):
+    # This must be ReadOnly so React doesn't have to send a User ID
+    created_by = serializers.ReadOnlyField(source='created_by.username')
+    attendee_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Event
-        fields = ['id', 'title', 'description', 'date', 'location', 'capacity']
+        fields = ['id', 'title', 'description', 'date', 'location', 'capacity', 'created_by', 'attendee_count']
 
     def get_attendee_count(self, obj):
-        return obj.registration_set.count()
+        # This matches your model's relationship
+        return Registration.objects.filter(event=obj).count()
 
 # 2. DEFINE THIS SECOND
 class RegistrationSerializer(serializers.ModelSerializer):

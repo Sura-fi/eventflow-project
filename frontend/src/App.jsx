@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
 import EventDetail from "./pages/EventDetail";
 import MyRegistrations from "./pages/MyRegistrations";
+import CreateEvent from "./pages/CreateEvent";
 
 
 export default function App() {
@@ -16,22 +17,9 @@ export default function App() {
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetail />} />
         <Route path="/my-registrations" element={<MyRegistrations />} />
+        <Route path="/create-event" element={<CreateEvent />} />
       </Routes>
     </BrowserRouter> 
    
   );
 }
-
-
-
-// function App() {
-//   return (
-//     <div>
-//       <h1 className="text-4xl font-bold text-indigo-600">
-//         Tailwind is WORKING 🎉
-//       </h1>
-//     </div>
-//   );
-// }
-
-// export default App;

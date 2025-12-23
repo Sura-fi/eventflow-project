@@ -12,6 +12,7 @@ from .serializers import EventSerializer, RegistrationSerializer
 from .serializers import AttendeeSerializer
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
 
 
 class EventListCreateView(generics.ListCreateAPIView):
@@ -21,9 +22,20 @@ class EventListCreateView(generics.ListCreateAPIView):
     serializer_class = EventSerializer
     permission_classes = []  # PUBLIC
 
-class EventDetailView(RetrieveAPIView):
+# class EventDetailView(RetrieveAPIView):
+#     queryset = Event.objects.all()
+#     serializer_class = EventSerializer
+    
+class EventDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_destroy(self, instance):
+        # Safety check: Only the creator can delete it
+        if instance.created_by != self.request.user:
+            raise PermissionDenied("You can only delete events you created.")
+        instance.delete()
 
 class RegisterEventView(generics.CreateAPIView):
     serializer_class = RegistrationSerializer
@@ -72,3 +84,14 @@ class CheckInView(APIView):
         registration.save()
 
         return Response({"message": "Checked in successfully"})
+
+class EventListCreateView(generics.ListCreateAPIView):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    
+    # Update permissions so only logged-in users (Organizers) can POST
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        # This line automatically connects the event to the person logged in
+        serializer.save(created_by=self.request.user)

@@ -1,53 +1,3 @@
-// import { useState } from "react";
-// import api from "../api/axios";
-// import { useNavigate } from "react-router-dom";
-
-// export default function Login() {
-//   const [username, setUsername] = useState("");
-//   const [password, setPassword] = useState("");
-//   const navigate = useNavigate();
-
-//   const handleLogin = async (e) => {
-//     e.preventDefault();
-//     try {
-//       const res = await api.post("/api/login/", {
-//         username,
-//         password,
-//       });
-//       localStorage.setItem("access", res.data.access);
-//       localStorage.setItem("refresh", res.data.refresh);
-//       navigate("/dashboard");
-//     } catch (err) {
-//       alert("Invalid credentials");
-//     }
-//   };
-
-//   return (
-//     <div style={{ padding: 40 }}>
-//       <h2>EventFlow Login</h2>
-//       <form onSubmit={handleLogin}>
-//         <input
-//           placeholder="Username"
-//           value={username}
-//           onChange={(e) => setUsername(e.target.value)}
-//         /><br /><br />
-//         <input
-//           type="password"
-//           placeholder="Password"
-//           value={password}
-//           onChange={(e) => setPassword(e.target.value)}
-//         /><br /><br />
-//         <button type="submit">Login</button>
-//       </form>
-//     </div>
-//   );
-// }
-
-
-
-
-
-
 import { useState } from "react";
 import api from "../api/axios";
 import { useNavigate, Link } from "react-router-dom";
@@ -59,23 +9,66 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      const res = await api.post("/api/login/", {
-        username,
-        password,
-      });
-      localStorage.setItem("access", res.data.access);
-      localStorage.setItem("refresh", res.data.refresh);
-      navigate("/dashboard");
-    } catch (err) {
-      alert("Invalid credentials");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // const handleLogin = async (e) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+  //   try {
+  //     const res = await api.post("/api/login/", {
+  //       username,
+  //       password,
+  //     });
+  //     localStorage.setItem("access", res.data.access);
+  //     localStorage.setItem("refresh", res.data.refresh);
+  //     navigate("/dashboard");
+  //   } catch (err) {
+  //     alert("Invalid credentials");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+
+
+  // Inside Login.jsx
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
+  try {
+    const res = await api.post("/api/login/", {
+      username,
+      password,
+    });
+    // DEBUG: Look at your browser console (F12) after you click login
+     console.log("Login Response Data:", res.data);
+    
+    // 1. Save the tokens
+    localStorage.setItem("access", res.data.access);
+    localStorage.setItem("refresh", res.data.refresh);
+    // 2. SAVE THE ROLE (New Line)
+  //   localStorage.setItem("role", res.data.role);
+    
+  //   navigate("/dashboard");
+  // } catch (err) {
+  //   alert("Invalid credentials");
+  // } finally {
+  //   setIsLoading(false);
+  // }
+
+  // If the backend sent it, this won't be undefined anymore
+  if (res.data.role) {
+    localStorage.setItem("role", res.data.role);
+  } else {
+    console.error("Role missing from server response!");
+  }
+  
+  navigate("/dashboard");
+} catch (err) {
+  alert("Invalid credentials");
+} finally {
+  setIsLoading(false);
+}
+};
+
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#f8fafc] relative overflow-hidden">
